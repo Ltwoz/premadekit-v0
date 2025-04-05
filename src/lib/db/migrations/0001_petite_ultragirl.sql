@@ -1,0 +1,1 @@
+ALTER TABLE "subscription_items" ALTER COLUMN "price" SET DATA TYPE integer;
