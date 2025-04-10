@@ -28,10 +28,6 @@ export const getSettingsRoutes = (team: string) => [
         path: createPath(pathsConfig.app.teamSettings, team),
       },
       {
-        label: "Members",
-        path: createPath(pathsConfig.app.teamMembers, team),
-      },
-      {
         label: "Billing",
         path: createPath(pathsConfig.app.teamBilling, team),
       },

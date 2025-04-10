@@ -1,4 +1,3 @@
 export default function TeamDashboardPage() {
-  return <div className="">TeamDashboardPage</div>;
+  return <div className=""></div>;
 }
-
