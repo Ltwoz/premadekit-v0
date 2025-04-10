@@ -10,6 +10,7 @@ import createStripeCheckout from "@/lib/stripe/create-stripe-checkout";
 import { pathsConfig } from "@/config/paths";
 import { getCurrentSession } from "@/lib/auth/session";
 import { redirect, RedirectType } from "next/navigation";
+import { siteConfig } from "@/config/site";
 
 export async function createCheckout(params: z.infer<typeof CheckoutSchema>) {
   const user = await getCurrentSession();
@@ -23,12 +24,9 @@ export async function createCheckout(params: z.infer<typeof CheckoutSchema>) {
 
   const variantQuantities = await getQuantity(params.teamId, plan.lineItems);
 
-  // const returnUrl = pathsConfig.app.teamDashboard.replace(
-  //   "[team]",
-  //   params.slug
-  // );
-
-  const returnUrl = "http://localhost:3000/dashboard";
+  const returnUrl = new URL(pathsConfig.app.teamBilling, siteConfig.url)
+    .toString()
+    .replace("[team]", params.slug);
 
   const session = await createStripeCheckout({
     teamId: params.teamId,

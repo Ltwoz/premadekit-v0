@@ -2,8 +2,9 @@ import { Button } from "@/components/ui/button";
 import { PlanSchema } from "../schema/create-billing-schema";
 import { useTransition } from "react";
 import { LoaderCircle } from "lucide-react";
-import { useParams } from "next/navigation";
+import { redirect, RedirectType, useParams } from "next/navigation";
 import { createCheckout } from "../server/create-checkout";
+import { If } from "@/components/premadekit/if";
 
 interface CheckoutButtonProps {
   plan: PlanSchema;
@@ -14,22 +15,35 @@ export function CheckoutButton({ plan, teamId }: CheckoutButtonProps) {
   const params = useParams();
   const [pending, startTransition] = useTransition();
 
-  return (
-    <Button variant={plan.highlighted ? "default" : "outline"} onClick={() => {
-      startTransition(async () => {
-        const slug = params.team as string;
+  function onClick() {
+    if (plan.custom) {
+      if (!plan.href) return;
 
-        await createCheckout({
-          slug,
-          teamId,
-          planId: plan.id,
-        })
-      })
-    }}>
+      return redirect(plan.href, RedirectType.push);
+    }
+
+    startTransition(async () => {
+      const slug = params.team as string;
+
+      await createCheckout({
+        slug,
+        teamId,
+        planId: plan.id,
+      });
+    });
+  }
+
+  return (
+    <Button
+      variant={plan.highlighted ? "default" : "outline"}
+      onClick={onClick}
+    >
       {pending ? (
         <LoaderCircle className="mr-2 size-4 animate-spin" />
       ) : (
-        <>Upgrade</>
+        <If condition={plan.custom} fallback={<span>Upgrade</span>}>
+          <span>{plan.buttonLabel}</span>
+        </If>
       )}
     </Button>
   );

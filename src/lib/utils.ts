@@ -15,6 +15,17 @@ export function convertAmountToMiliunits(amount: number) {
   return Math.round(amount * 1000);
 }
 
+export function formatCurrency(params: {
+  currencyCode: string;
+  locale: string;
+  value: string | number;
+}) {
+  return new Intl.NumberFormat(params.locale, {
+    style: "currency",
+    currency: params.currencyCode,
+  }).format(Number(params.value));
+}
+
 export function constructMetadata({
   title = siteConfig.name,
   description = siteConfig.description,

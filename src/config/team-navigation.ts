@@ -21,29 +21,20 @@ export const getTeamRoutes = (team: string) => [
 
 export const getSettingsRoutes = (team: string) => [
   {
-    label: 'Team',
+    label: "Team",
     children: [
       {
-        label: 'General',
+        label: "General",
         path: createPath(pathsConfig.app.teamSettings, team),
       },
       {
-        label: 'Members',
+        label: "Members",
         path: createPath(pathsConfig.app.teamMembers, team),
       },
       {
-        label: 'Billing',
+        label: "Billing",
         path: createPath(pathsConfig.app.teamBilling, team),
       },
-    ]
-  },
-  {
-    label: 'Account',
-    children: [
-      {
-        label: 'Notifications',
-        path: createPath("/dashboard/[team]/settings/notifications", team),
-      },
-    ]
+    ],
   },
 ];

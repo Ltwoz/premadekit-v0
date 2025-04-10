@@ -11,7 +11,7 @@ const LineItemTypeSchema = z.enum(["flat", "per_seat", "metered"]);
 
 export const PaymentTypeSchema = z.enum(["one-time", "recurring"]);
 
-export const LineItemSchema = z
+const LineItemSchema = z
   .object({
     id: z
       .string({
@@ -45,7 +45,7 @@ export const LineItemSchema = z
     tiers: z
       .array(
         z.object({
-          cost: z.number().min(0),
+          price: z.number().min(0),
           upTo: z.union([z.number().min(0), z.literal("unlimited")]),
         })
       )
@@ -79,8 +79,7 @@ const PlanSchema = z
   .object({
     id: z
       .string({
-        description:
-          "Unique identifier for the plan. Defined by th Provider.",
+        description: "Unique identifier for the plan. Defined by th Provider.",
       })
       .min(1),
     name: z
@@ -131,6 +130,8 @@ const PlanSchema = z
       .optional(),
     interval: BillingIntervalSchema.optional(),
     custom: z.boolean().default(false).optional(),
+    label: z.string().min(1).optional(),
+    buttonLabel: z.string().min(1).optional(),
     href: z.string().min(1).optional(),
     lineItems: z.array(LineItemSchema).refine(
       (schema) => {
@@ -250,10 +251,22 @@ export type BillingConfig = z.infer<typeof BillingSchema>;
 export type PlanSchema = z.infer<typeof PlanSchema>;
 export type LineItemSchema = z.infer<typeof LineItemSchema>;
 
-export function getLineItemTypeById(
-  config: BillingConfig,
-  id: string
+export function getPlanByVariantId(
+  config: z.infer<typeof BillingSchema>,
+  planId: string
 ) {
+  for (const plan of config.plans) {
+    for (const lineItem of plan.lineItems) {
+      if (lineItem.id === planId) {
+        return { plan };
+      }
+    }
+  }
+
+  throw new Error("Plan not found");
+}
+
+export function getLineItemTypeById(config: BillingConfig, id: string) {
   const lineItem = config.plans
     .flatMap((plan) => plan.lineItems)
     .find((item) => item.id === id);
@@ -263,4 +276,22 @@ export function getLineItemTypeById(
   }
 
   return lineItem.type;
+}
+
+export function getPrimaryLineItem(config: BillingConfig, planId: string) {
+  for (const plan of config.plans) {
+    if (plan.id === planId) {
+      const flatLineItem = plan.lineItems.find(
+        (item) => item.type === LineItemType.Flat
+      );
+
+      if (flatLineItem) {
+        return flatLineItem;
+      }
+
+      return plan.lineItems[0];
+    }
+  }
+
+  throw new Error("Base line item not found");
 }

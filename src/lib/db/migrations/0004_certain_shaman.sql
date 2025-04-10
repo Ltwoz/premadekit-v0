@@ -1,0 +1,3 @@
+ALTER TABLE "subscription_items" ADD CONSTRAINT "subscription_items_subscription_id_product_id_variant_id_unique" UNIQUE("subscription_id","product_id","variant_id");--> statement-breakpoint
+ALTER TABLE "invitations" ADD CONSTRAINT "invitations_team_id_email_unique" UNIQUE("team_id","email");--> statement-breakpoint
+ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permissions_role_permission_unique" UNIQUE("role","permission");

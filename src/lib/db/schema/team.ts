@@ -51,11 +51,7 @@ export const rolePermissions = pgTable(
       .references(() => roles.name),
     permission: varchar("permission", { length: 50 }).notNull(),
   },
-  (t) => [
-    {
-      unique: unique().on(t.role, t.permission),
-    },
-  ]
+  (t) => [unique().on(t.role, t.permission)]
 );
 
 export const memberships = pgTable(
@@ -109,11 +105,7 @@ export const invitations = pgTable(
         return date;
       }),
   },
-  (t) => [
-    {
-      unique: unique().on(t.teamId, t.email),
-    },
-  ]
+  (t) => [unique().on(t.teamId, t.email)]
 );
 
 export const membershipsRelations = relations(memberships, ({ one }) => ({

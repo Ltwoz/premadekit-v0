@@ -11,7 +11,6 @@ export const metadata = constructMetadata({
 
 export default async function PricingPage() {
   const user = await getCurrentSession();
-  console.log("user:", user);
 
   let subscriptionPlan;
   // if (user && user.id) {

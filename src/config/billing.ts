@@ -3,8 +3,8 @@ import { createBillingSchema } from "@/features/billing/schema/create-billing-sc
 export default createBillingSchema({
   plans: [
     {
-      id: "free",
-      name: "Free",
+      id: "starter",
+      name: "Starter",
       description: "For small business",
       currency: "USD",
       benefits: [
@@ -19,8 +19,8 @@ export default createBillingSchema({
       lineItems: [
         {
           id: "price_1NNwYHI1i3VnbZTqI2UzaHIe1",
-          name: "free",
-          price: 0,
+          name: "starter",
+          price: 20,
           type: "flat" as const,
         },
       ],
@@ -64,13 +64,17 @@ export default createBillingSchema({
       ],
       paymentType: "recurring",
       interval: "month",
+      custom: true,
+      label: "Contact us",
+      buttonLabel: "Contact us",
+      href: "/",
       lineItems: [
-        {
-          id: "price_1NNwYHI1i3VnbZTqI2UzaHIe3",
-          name: "Pro",
-          price: 40,
-          type: "flat" as const,
-        },
+        // {
+        //   id: "price_1RAs3fDB0szM0f6IdoYstR3Q",
+        //   name: "Pro",
+        //   price: 40,
+        //   type: "flat" as const,
+        // },
       ],
     },
   ],

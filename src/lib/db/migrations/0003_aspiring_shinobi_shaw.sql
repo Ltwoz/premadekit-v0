@@ -1,0 +1,1 @@
+ALTER TABLE "billing_customers" ADD CONSTRAINT "billing_customers_team_id_customer_id_unique" UNIQUE("team_id","customer_id");

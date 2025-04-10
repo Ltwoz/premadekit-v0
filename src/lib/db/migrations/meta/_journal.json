@@ -15,6 +15,48 @@
       "when": 1743826201507,
       "tag": "0001_petite_ultragirl",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1743938036675,
+      "tag": "0002_nasty_romulus",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1743939180392,
+      "tag": "0003_aspiring_shinobi_shaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1743939328128,
+      "tag": "0004_certain_shaman",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1743939956766,
+      "tag": "0005_last_jetstream",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1744272759219,
+      "tag": "0006_silent_giant_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1744273155355,
+      "tag": "0007_kind_shocker",
+      "breakpoints": true
     }
   ]
 }

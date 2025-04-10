@@ -1,6 +1,6 @@
 import type { Stripe } from "stripe";
-import { stripe } from ".";
 import { PlanSchema } from "@/features/billing/schema/create-billing-schema";
+import { stripe } from ".";
 
 interface createStripeCheckoutParams {
   teamId: string;
@@ -27,11 +27,6 @@ export default async function createStripeCheckout(
     params.plan.paymentType === "recurring" ? "subscription" : "payment";
 
   const isSubscription = mode === "subscription";
-
-  // const lineItem: Stripe.Checkout.SessionCreateParams.LineItem = {
-  //   quantity: 1,
-  //   price: params.priceId,
-  // };
 
   const lineItem = params.plan.lineItems.map((item) => {
     if (item.type === "metered") {

@@ -40,12 +40,10 @@ export const billingCustomers = pgTable(
       .notNull()
       .references(() => teams.id, { onDelete: "cascade" }),
     customerId: varchar("customer_id", { length: 255 }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (t) => [
-    {
-      unique: unique().on(t.teamId, t.customerId),
-    },
-  ]
+  (t) => [unique().on(t.teamId, t.customerId)]
 );
 
 export const subscriptions = pgTable("subscriptions", {
@@ -56,12 +54,12 @@ export const subscriptions = pgTable("subscriptions", {
   billingCustomerId: text("billing_customer_id")
     .notNull()
     .references(() => billingCustomers.id, { onDelete: "cascade" }),
-  // active: boolean("active").notNull(),
+  active: boolean("active").notNull(),
   status: subscriptionStatusEnum("status").notNull(),
   currency: varchar("currency", { length: 3 }),
   cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull(),
-  currentPeriodStart: timestamp("current_period_start"),
-  currentPeriodEnd: timestamp("current_period_end"),
+  currentPeriodStart: timestamp("current_period_start").notNull(),
+  currentPeriodEnd: timestamp("current_period_end").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -75,8 +73,8 @@ export const subscriptionItems = pgTable(
     subscriptionId: text("subscription_id")
       .notNull()
       .references(() => subscriptions.id, { onDelete: "cascade" }),
-    productId: varchar("product_id", { length: 255 }),
-    variantId: varchar("variant_id", { length: 255 }),
+    productId: varchar("product_id", { length: 255 }).notNull(),
+    variantId: varchar("variant_id", { length: 255 }).notNull(),
     type: subscriptionItemTypeEnum("type").notNull(),
     quantity: integer("quantity").notNull().default(1),
     price: integer("price").notNull(),
@@ -85,11 +83,7 @@ export const subscriptionItems = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (t) => [
-    {
-      unique: unique().on(t.subscriptionId, t.productId, t.variantId),
-    },
-  ]
+  (t) => [unique().on(t.subscriptionId, t.productId, t.variantId)]
 );
 
 export const billingCustomersRelations = relations(
@@ -130,3 +124,6 @@ export const subscriptionItemsRelations = relations(
     }),
   })
 );
+
+export type Subscription = typeof subscriptions.$inferSelect;
+export type SubscriptionItem = typeof subscriptionItems.$inferSelect;

@@ -1,16 +1,11 @@
 import { headers } from "next/headers";
-import { and, eq, notInArray } from "drizzle-orm";
 import Stripe from "stripe";
 
-import { getLineItemTypeById } from "@/features/billing/schema/create-billing-schema";
-import { db } from "@/lib/db";
-import {
-  billingCustomers,
-  subscriptionItems,
-  subscriptions,
-} from "@/lib/db/schema/billing";
 import { stripe } from "@/lib/stripe";
-import billingConfig from "@/config/billing";
+import { upsertSubscription } from "@/features/billing/server/action/upsert-subscription";
+import { db } from "@/lib/db";
+import { subscriptions } from "@/lib/db/schema/billing";
+import { eq } from "drizzle-orm";
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -36,6 +31,20 @@ export async function POST(req: Request) {
 
         break;
       }
+      case "customer.subscription.updated": {
+        const subscription = event.data.object as Stripe.Subscription;
+
+        await onSubscriptionUpdated(subscription);
+
+        break;
+      }
+      case "customer.subscription.deleted": {
+        const subscriptionId = event.data.object.id as string;
+
+        await onSubscriptionDeleted(subscriptionId);
+
+        break;
+      }
     }
   } catch (error) {
     console.log("Error in webhook handler", error);
@@ -45,6 +54,17 @@ export async function POST(req: Request) {
   return new Response(null, { status: 200 });
 }
 
+async function onSubscriptionUpdated(subscription: Stripe.Subscription) {
+  const teamId = subscription.metadata.teamId as string;
+  const customerId = subscription.customer as string;
+
+  await upsertSubscription({ teamId, customerId, subscription });
+}
+
+async function onSubscriptionDeleted(subscriptionId: string) {
+  await db.delete(subscriptions).where(eq(subscriptions.id, subscriptionId));
+}
+
 async function onCheckoutCompleted(
   session: Stripe.Checkout.Session,
   subscription: Stripe.Subscription
@@ -52,83 +72,5 @@ async function onCheckoutCompleted(
   const teamId = session.client_reference_id as string;
   const customerId = session.customer as string;
 
-  await db.transaction(async (tx) => {
-    const [billingCustomer] = await tx
-      .insert(billingCustomers)
-      .values({
-        teamId,
-        customerId,
-      })
-      .returning({
-        id: billingCustomers.id,
-      });
-
-    const [subscriptionData] = await tx
-      .insert(subscriptions)
-      .values({
-        teamId,
-        billingCustomerId: billingCustomer.id,
-        id: subscription.id,
-        status: subscription.status,
-        cancelAtPeriodEnd: subscription.cancel_at_period_end,
-        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-        currency: subscription.currency,
-      })
-      .onConflictDoUpdate({
-        target: subscriptions.id,
-        set: {
-          status: subscription.status,
-          cancelAtPeriodEnd: subscription.cancel_at_period_end,
-          currentPeriodStart: new Date(
-            subscription.current_period_start * 1000
-          ),
-          currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-          currency: subscription.currency,
-        },
-      })
-      .returning();
-
-    const existingItemIds = subscription.items.data.map((item) => item.id);
-
-    await tx
-      .delete(subscriptionItems)
-      .where(
-        and(
-          eq(subscriptionItems.subscriptionId, subscriptionData.id),
-          notInArray(subscriptionItems.id, existingItemIds)
-        )
-      );
-
-    for (const item of subscription.items.data) {
-      const variantId = item.price?.id as string;
-      const type = getLineItemTypeById(billingConfig, variantId);
-
-      await tx
-        .insert(subscriptionItems)
-        .values({
-          id: item.id,
-          subscriptionId: subscriptionData.id,
-          productId: item.price?.product as string,
-          variantId,
-          type,
-          quantity: item.quantity,
-          price: item.price?.unit_amount as number,
-          interval: item.price?.recurring?.interval as string,
-          intervalCount: item.price?.recurring?.interval_count as number,
-        })
-        .onConflictDoUpdate({
-          target: subscriptionItems.id,
-          set: {
-            productId: item.price?.product as string,
-            variantId,
-            type,
-            quantity: item.quantity,
-            price: item.price?.unit_amount as number,
-            interval: item.price?.recurring?.interval as string,
-            intervalCount: item.price?.recurring?.interval_count as number,
-          },
-        });
-    }
-  });
+  await upsertSubscription({ teamId, customerId, subscription });
 }
