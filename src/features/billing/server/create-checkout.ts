@@ -20,7 +20,12 @@ export async function createCheckout(params: z.infer<typeof CheckoutSchema>) {
   const plan = getPlanDetails(params.planId);
 
   const customerId = await billingApi.getCustomerId(params.teamId);
-  const customerEmail = user?.email!;
+
+  if (!user.email) {
+    throw new Error("User email is undefined");
+  }
+  
+  const customerEmail = user.email;
 
   const variantQuantities = await getQuantity(params.teamId, plan.lineItems);
 
