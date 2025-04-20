@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { pricingData } from "@/config/billing";
+// import { pricingData } from "@/config/billing";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 // import { BillingFormButton } from "@/components/forms/billing-form-button";
@@ -100,9 +100,9 @@ export function PricingPlans({ path }: PricingPlansProps) {
         <HeaderSection label="Pricing" title="Start at full speed !" />
 
         <div className="grid gap-5 bg-inherit py-5 lg:grid-cols-3">
-          {pricingData.map((offer: any) => (
+          {/* {pricingData.map((offer: any) => (
             <PricingCard offer={offer} key={offer.title} />
-          ))}
+          ))} */}
         </div>
 
         <p className="mt-3 text-balance text-center text-base text-muted-foreground">
